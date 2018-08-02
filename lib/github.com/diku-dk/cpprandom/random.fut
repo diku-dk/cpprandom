@@ -489,7 +489,8 @@ module uniform_real_distribution (R: real) (E: rng_engine):
   rng_distribution with num.t = R.t
                    with engine.rng = E.rng
                    with distribution = (R.t,R.t) = {
-  let to_D (x: E.int.t) = R.i64 (E.int.to_i64 x)
+  let to_R (x: E.int.t) =
+    R.u64 (u64.i64 (E.int.to_i64 x))
 
   module engine = E
   module num = R
@@ -499,7 +500,7 @@ module uniform_real_distribution (R: real) (E: rng_engine):
 
   let rand ((min_r,max_r): distribution) (rng: E.rng) =
     let (rng', x) = E.rand rng
-    let x' = to_D x R./ to_D E.max
+    let x' = R.((to_R x - to_R E.min) / (to_R E.max - to_R E.min))
     in (rng', R.(min_r + x' * (max_r - min_r)))
 }
 
