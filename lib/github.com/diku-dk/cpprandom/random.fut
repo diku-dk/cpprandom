@@ -399,11 +399,15 @@ module xorshift128plus: rng_engine with int.t = u64 = {
     let new_y = x ^ y ^ (x >> 17u64) ^ (y >> 26u64)
     in ((new_x,new_y), (new_y + y))
 
+  -- This seeding is quite a hack to ensure that we get good results
+  -- even for poor seeds.  The main trick is to run a couple of rounds
+  -- of the RNG after we're done.
   let rng_from_seed [n] (seed: [n]i32) =
-    loop (a,b) = (1u64,u64.i32 n) for i < n do
-      if n % 2 == 0
-      then (rand (a^u64.i32 (hash seed[i]),b)).1
-      else (rand (a, b^u64.i32 (hash seed[i]))).1
+    (loop (a,b) = (u64.i32 (hash (-n)), u64.i32 (hash n)) for i < n do
+       if i % 2 == 0
+       then (rand (a^u64.i32 (hash seed[i]),b)).1
+       else (rand (a, b^u64.i32 (hash seed[i]))).1)
+    |> rand |> (.1) |> rand |> (.1)
 
   let split_rng (n: i32) ((x,y): rng): [n]rng =
     map (\i -> let (a,b) = (rand (rng_from_seed [hash (i^n)])).1
