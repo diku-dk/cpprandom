@@ -14,7 +14,7 @@ before_install:
  - (cd futhark-nightly-linux-x86_64/ && PREFIX=$HOME/.local make install)
 
 install:
-  - futhark-pkg sync
+  - futhark pkg sync
 
 script:
   - futhark test --pass-compiler-option=--Werror lib
