@@ -13,8 +13,8 @@ illuminating.
 ## Installation
 
 ```
-$ futhark-pkg add github.com/diku-dk/cpprandom
-$ futhark-pkg sync
+$ futhark pkg add github.com/diku-dk/cpprandom
+$ futhark pkg sync
 ```
 
 ## Usage
@@ -24,7 +24,7 @@ The following shows how to combine the random number engine
 to simulate a single dice roll (throwing away the new RNG state).
 
 ```
-$ futharki
+$ futhark repl
 > import "lib/github.com/diku-dk/cpprandom/random"
 > let rng = minstd_rand.rng_from_seed [123]
 > module d = uniform_int_distribution i32 minstd_rand
