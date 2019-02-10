@@ -1,4 +1,4 @@
-# cpprandom
+# cpprandom [![Build Status](https://travis-ci.org/athas/cpprandom.svg?branch=master)](https://travis-ci.org/athas/cpprandom) [![Documentation](https://futhark-lang.org/pkgs/github.com/athas/cpprandom/status.svg)](https://futhark-lang.org/pkgs/github.com/athas/cpprandom/latest/)
 
 This package provides random number generation for Futhark.  It is
 designed to closely imitate
