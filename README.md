@@ -37,4 +37,4 @@ $ futhark repl
 The versioning guarantees for this package do not necessarily involve
 full replicability.  The random sequences may change, even without
 bumping the major version number, if necessary to fix bugs in seeding
-or to operations such as `split_rng`.
+or to improve operations such as `split_rng`.
