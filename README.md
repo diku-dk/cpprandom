@@ -28,7 +28,7 @@ $ futhark repl
 > import "lib/github.com/diku-dk/cpprandom/random"
 > let rng = minstd_rand.rng_from_seed [123]
 > module d = uniform_int_distribution i32 minstd_rand
-> (d.rand (1,6) rng).2
+> (d.rand (1,6) rng).1
 1
 ```
 
