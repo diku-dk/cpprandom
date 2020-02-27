@@ -170,7 +170,8 @@ module linear_congruential_engine (T: integral) (P: {
     in (rand (T.u32 seed')).0
 
   let split_rng (n: i32) (x: rng): [n]rng =
-    map (\i -> x T.^ T.i32 (hash i)) (iota n)
+    let (x, _) = rand x
+    in map (\i -> x T.^ T.i32 (hash i)) (iota n)
 
   let join_rng [n] (xs: [n]rng): rng =
     reduce (T.^) (T.i32 0) xs
