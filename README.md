@@ -57,5 +57,5 @@ Results for benchmark.fut:xorshift128plus:
 dataset #0 ("128000i32 10000i32"):   12447.70μs (avg. of 10 runs; RSD: 0.02)
 ```
 
-note that the randomness produced by `minstd_rand` is much worse than
+Note that the randomness produced by `minstd_rand` is much worse than
 what is produced by the alternatives.
