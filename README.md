@@ -38,3 +38,24 @@ The versioning guarantees for this package do not necessarily involve
 full replicability.  The random sequences may change, even without
 bumping the major version number, if necessary to fix bugs in seeding
 or to improve operations such as `split_rng`.
+
+## Performance
+
+The three fastest predefined RNGs are `minstd_rand` (and its cousin
+`minstd_rand0`), `xorshift128plus`, and `pcg32`.  A [simple benchmark
+program](benchmark.fut) gives the following results on an AMD Vega 64
+GPU:
+
+```
+$ futhark bench --backend=opencl benchmark.fut
+Compiling benchmark.fut...
+Results for benchmark.fut:minstd_rand:
+dataset #0 ("128000i32 10000i32"):    5986.30μs (avg. of 10 runs; RSD: 0.06)
+Results for benchmark.fut:pcg32:
+dataset #0 ("128000i32 10000i32"):    9617.80μs (avg. of 10 runs; RSD: 0.11)
+Results for benchmark.fut:xorshift128plus:
+dataset #0 ("128000i32 10000i32"):   12447.70μs (avg. of 10 runs; RSD: 0.02)
+```
+
+note that the randomness produced by `minstd_rand` is much worse than
+what is produced by the alternatives.
