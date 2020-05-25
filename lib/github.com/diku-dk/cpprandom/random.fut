@@ -212,7 +212,6 @@ module subtract_with_carry_engine (T: integral) (P: {
               k: i32}
 
   let rand ({x, carry, k}: rng): (rng, t) =
-    unsafe
     let short_index = k - short_lag
     let short_index = if short_index < 0
                       then short_index + long_lag
@@ -319,7 +318,7 @@ module shuffle_order_engine (K: {val k: i32}) (E: rng_engine)
     let (rng,x) = E.rand rng
     let i = i32.i64 (int.to_i64 x) % K.k
     let (rng,y) = E.rand rng
-    in unsafe ((rng, (copy table) with [i] = y), table[i])
+    in ((rng, (copy table) with [i] = y), table[i])
 
   let min = E.min
   let max = E.max
