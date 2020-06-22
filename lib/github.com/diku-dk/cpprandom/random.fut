@@ -237,7 +237,8 @@ module subtract_with_carry_engine (T: integral) (P: {
     in {x, carry, k}
 
   let split_rng (n: i32) ({x, carry, k}: rng): [n]rng =
-    map (\i -> {x=map (T.^(T.i32 (hash i))) x, carry, k}) (iota n)
+    map (\i -> {x=map (T.^(T.i32 (hash i))) x,
+                carry = carry && (i % 2 == 0), k}) (iota n)
 
   let join_rng [n] (xs: [n]rng): rng =
     xs[0] -- FIXME
@@ -469,7 +470,7 @@ module uniform_int_distribution (D: integral) (E: rng_engine):
                    with engine.rng = E.rng
                    with distribution = (D.t,D.t) = {
 
-  let to_D (x: E.int.t) = D.i64 (E.int.to_i64 x)
+  let to_D (x: E.int.t) = D.u64 (u64.i64 (E.int.to_i64 x))
   let to_E (x: D.t) = E.int.i64 (D.to_i64 x)
 
   module engine = E
@@ -479,9 +480,9 @@ module uniform_int_distribution (D: integral) (E: rng_engine):
 
   open E.int
 
-  let rand ((min,max): distribution) (rng: E.rng) =
-    let min = to_E min
-    let max = to_E max
+  let rand ((D_min,D_max): distribution) (rng: E.rng) =
+    let min = to_E D_min
+    let max = to_E D_max
     let range = max - min + i32 1
     in if range <= i32 0
        then (rng, to_D E.min)
@@ -491,7 +492,7 @@ module uniform_int_distribution (D: integral) (E: rng_engine):
             let secure_max = E.max - E.max %% range
             let (rng,x) = loop (rng, x) = E.rand rng
                           while x >= secure_max do E.rand rng
-            in (rng, to_D (min + x / (secure_max / range)))
+            in (rng, D_min D.+ to_D (x % range))
 }
 
 -- | This uniform integer distribution generates floats in a given

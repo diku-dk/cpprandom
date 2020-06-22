@@ -46,6 +46,17 @@ module test_i32_rand_m =
 
 entry test_i32_rand (x: i32) (n: i32) = test_i32_rand_m.test x n (1,100)
 
+-- Inspired by https://github.com/diku-dk/cpprandom/issues/2
+-- ==
+-- entry: test_i64_rand
+-- compiled input { 0 10000 } output { -16 }
+-- compiled input { 1 10000 } output { -15 }
+
+module test_i64_rand_m =
+ mktest (uniform_int_distribution i32 minstd_rand)
+
+entry test_i64_rand (x: i32) (n: i32) = test_i32_rand_m.test x n (-20,-10)
+
 -- ==
 -- entry: test_i32_ranlux24_base
 -- compiled input { 0 10000 } output { 50 }
