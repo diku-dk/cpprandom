@@ -104,7 +104,7 @@ module type rng_engine = {
   -- | Split an RNG state into several states.  Implementations of
   -- this function tend to be cryptographically unsound, so be
   -- careful.
-  val split_rng: (n: i32) -> rng -> [n]rng
+  val split_rng: (n: i64) -> rng -> [n]rng
 
   -- | Combine several RNG states into a single state - typically done
   -- with the result of `split_rng`@term.
@@ -169,9 +169,9 @@ module linear_congruential_engine (T: integral) (P: {
              (i32 seed[i] ^ 0b1010101010101))
     in (rand (T.u32 seed')).0
 
-  let split_rng (n: i32) (x: rng): [n]rng =
+  let split_rng (n: i64) (x: rng): [n]rng =
     let (x, _) = rand x
-    in map (\i -> x T.^ T.i32 (hash i)) (iota n)
+    in tabulate n (\i -> x T.^ T.i32 (hash (i32.i64 i)))
 
   let join_rng [n] (xs: [n]rng): rng =
     reduce (T.^) (T.i32 0) xs
@@ -205,9 +205,11 @@ module subtract_with_carry_engine (T: integral) (P: {
     let m = T.u32 2147483563u32
   }
 
+  let r = i64.i32 P.r
+
   module int = T
   type t = T.t
-  type rng = {x: [P.r]T.t,
+  type rng = {x: [r]T.t,
               carry: bool,
               k: i32}
 
@@ -228,7 +230,7 @@ module subtract_with_carry_engine (T: integral) (P: {
 
   let rng_from_seed [n] (seed: [n]i32): rng =
     let rng = e.rng_from_seed seed
-    let (x, _) = loop (x, rng) = (replicate P.r (T.i32 0), rng)
+    let (x, _) = loop (x, rng) = (replicate r (T.i32 0), rng)
                    for i < P.r do let (v, rng) = e.rand rng
                                   in (x with [i] = T.(v % modulus),
                                       rng)
@@ -236,9 +238,9 @@ module subtract_with_carry_engine (T: integral) (P: {
     let k = 0
     in {x, carry, k}
 
-  let split_rng (n: i32) ({x, carry, k}: rng): [n]rng =
-    map (\i -> {x=map (T.^(T.i32 (hash i))) x,
-                carry = carry && (i % 2 == 0), k}) (iota n)
+  let split_rng (n: i64) ({x, carry, k}: rng): [n]rng =
+    tabulate n (\i -> {x=map (T.^(T.i32 (hash (i32.i64 i)))) x,
+                       carry = carry && (i % 2 == 0), k})
 
   let join_rng [n] (xs: [n]rng): rng =
     xs[0] -- FIXME
@@ -272,7 +274,7 @@ module discard_block_engine (K: {
   let rng_from_seed (xs: []i32): rng =
     (E.rng_from_seed xs, 0)
 
-  let split_rng (n: i32) ((rng, i): rng): [n]rng =
+  let split_rng (n: i64) ((rng, i): rng): [n]rng =
     map (\rng' -> (rng', i)) (E.split_rng n rng)
 
   let join_rng (rngs: []rng): rng =
@@ -295,12 +297,13 @@ module discard_block_engine (K: {
 -- buffer, replacing it with a value obtained from its base engine.
 module shuffle_order_engine (K: {val k: i32}) (E: rng_engine)
                           : rng_engine with int.t = E.int.t = {
+  let k = i64.i32 K.k
   type t = E.int.t
   module int = E.int
-  type rng = (E.rng, [K.k]t)
+  type rng = (E.rng, [k]t)
 
   let build_table (rng: E.rng) =
-    let xs = replicate K.k (int.i32 0)
+    let xs = replicate k (int.i32 0)
     in loop (rng,xs) for i < K.k do
          let (rng,x) = E.rand rng
          in (rng, xs with [i] = x)
@@ -308,7 +311,7 @@ module shuffle_order_engine (K: {val k: i32}) (E: rng_engine)
   let rng_from_seed (xs: []i32) =
     build_table (E.rng_from_seed xs)
 
-  let split_rng (n: i32) ((rng, _): rng): [n]rng =
+  let split_rng (n: i64) ((rng, _): rng): [n]rng =
     map build_table (E.split_rng n rng)
 
   let join_rng (rngs: []rng) =
@@ -405,15 +408,15 @@ module xorshift128plus: rng_engine with int.t = u64 = {
   -- even for poor seeds.  The main trick is to run a couple of rounds
   -- of the RNG after we're done.
   let rng_from_seed [n] (seed: [n]i32) =
-    (loop (a,b) = (u64.i32 (hash (-n)), u64.i32 (hash n)) for i < n do
+    (loop (a,b) = (u64.i32 (hash (i32.i64 (-n))), u64.i32 (hash (i32.i64 n))) for i < n do
        if i % 2 == 0
        then (rand (a^u64.i32 (hash seed[i]),b)).0
        else (rand (a, b^u64.i32 (hash seed[i]))).0)
     |> rand |> (.0) |> rand |> (.0)
 
-  let split_rng (n: i32) ((x,y): rng): [n]rng =
-    map (\i -> let (a,b) = (rand (rng_from_seed [hash (i^n)])).0
-               in (rand (rand (x^a,y^b)).0).0) (iota n)
+  let split_rng (n: i64) ((x,y): rng): [n]rng =
+    tabulate n (\i -> let (a,b) = (rand (rng_from_seed [hash (i32.i64 (i^n))])).0
+                      in (rand (rand (x^a,y^b)).0).0)
 
   let join_rng [n] (xs: [n]rng): rng =
     reduce (\(x1,y1) (x2,y2) -> (x1^x2,y1^y2)) (0u64,0u64) xs
@@ -445,9 +448,9 @@ module pcg32: rng_engine with int.t = u32 = {
     let state = loop state for x in xs do state + u64.i32 x
     in (rand {state, inc}).0
 
-  let split_rng (n: i32) ({state,inc}: rng): [n]rng =
+  let split_rng (n: i64) ({state,inc}: rng): [n]rng =
     let ith i =
-      let i' = hash (i ^ n)
+      let i' = hash (i32.i64 (i ^ n))
       in {state = state ^ u64.i32 i' ^ (u64.i32 i' << 32), inc}
     in tabulate n ith
 
