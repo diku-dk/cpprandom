@@ -1,4 +1,4 @@
-# cpprandom [![Build Status](https://travis-ci.org/diku-dk/cpprandom.svg?branch=master)](https://travis-ci.org/diku-dk/cpprandom) [![Documentation](https://futhark-lang.org/pkgs/github.com/diku-dk/cpprandom/status.svg)](https://futhark-lang.org/pkgs/github.com/diku-dk/cpprandom/latest/)
+# cpprandom [![CI](https://github.com/diku-dk/cpprandom/workflows/CI/badge.svg)](https://github.com/diku-dk/cpprandom/actions) [![Documentation](https://futhark-lang.org/pkgs/github.com/diku-dk/cpprandom/status.svg)](https://futhark-lang.org/pkgs/github.com/diku-dk/cpprandom/latest/)
 
 This package provides random number generation for Futhark.  It is
 designed to closely imitate
