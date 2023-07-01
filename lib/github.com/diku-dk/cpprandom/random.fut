@@ -254,7 +254,7 @@ module subtract_with_carry_engine (T: integral) (P: {
 -- each block of `p` elements from the sequence it produces,
 -- discarding the rest.
 --
--- The adaptor keeps and internal counter of how many elements have
+-- The adaptor keeps an internal counter of how many elements have
 -- been produced in the current block.
 module discard_block_engine (K: {
   -- | Block size: number of elements in each block.  Must be
