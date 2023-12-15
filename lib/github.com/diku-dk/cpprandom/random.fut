@@ -60,13 +60,13 @@
 -- ```
 -- let rngs = minstd_rand.split_rng n rng
 -- let (rngs, ys) = unzip (map2 f rngs xs)
--- let rng = minstd.rand.join_rngs rngs
+-- let rng = minstd_rand.join_rng rngs
 -- ```
 --
 -- We assume here that the function `f` returns not just the result,
 -- but also the new RNG state.  Generally, all functions that accept
 -- random number states should behave like this.  We subsequently use
--- `join_rngs` to combine all resulting states back into a single
+-- `join_rng` to combine all resulting states back into a single
 -- state.  Thus, parallel programming with random numbers involves
 -- frequently splitting and re-joining RNG states.  For most RNG
 -- engines, these operations are generally very cheap.
