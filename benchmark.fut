@@ -2,20 +2,22 @@ import "lib/github.com/diku-dk/cpprandom/random"
 import "lib/github.com/diku-dk/cpprandom/romu"
 
 module mk_bench (I: integral) (E: rng_engine with t = I.t) = {
-  let stream (n: i64) =
+  def stream (n: i64) =
     let rng = E.rng_from_seed [123]
     let out = replicate n (I.i64 0)
     in (loop (rng, out) for i < n do
-        let (rng, x) = E.rand rng
-        in (rng, out with [i] = x)).1
+          let (rng, x) = E.rand rng
+          in (rng, out with [i] = x)).1
 
-  let bench (n: i64) (m: i64) =
+  def bench (n: i64) (m: i64) =
     let sum_stream (i: i64) =
       let rng = E.rng_from_seed [i32.i64 (i ^ 123)]
       let acc = I.i64 0
-      let (_, acc) = loop (rng, acc) = (rng, acc) for _i < m do
-                     let (rng, x) = E.rand rng
-                     in (rng, I.(acc + x))
+      let (_, acc) =
+        loop (rng, acc) = (rng, acc)
+        for _i < m do
+          let (rng, x) = E.rand rng
+          in (rng, I.(acc + x))
       in acc
     in tabulate n sum_stream
 }
