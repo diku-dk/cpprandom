@@ -16,7 +16,7 @@ module test_romu_quad32_m = util.mktest (uniform_int_distribution i32 u32 romu_q
 
 module test_romu_trio32_m = util.mktest (uniform_int_distribution i32 u32 romu_trio32)
 
-module test_romu_mono32_m = util.mktest (uniform_int_distribution i32 u32 romu_trio32)
+module test_romu_mono32_m = util.mktest (uniform_int_distribution i32 u16 romu_mono32)
 
 entry test_romu_quad (x: i32) (n: i64) = test_romu_quad_m.test x n (1, 100)
 entry test_romu_trio (x: i32) (n: i64) = test_romu_trio_m.test x n (1, 100)
