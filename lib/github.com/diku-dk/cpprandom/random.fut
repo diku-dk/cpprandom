@@ -13,16 +13,19 @@
 --
 -- This program constructs a uniform distribution of single precision
 -- floats using the `minstd_rand`@term as the underlying RNG engine.
--- The `dist` module is constructed at the program top level, while we
--- use it at the expression level.  We use the `minstd_rand` module
--- for initialising the random number state using a seed, and then we
--- pass that state to the `rand` function in the generated
--- distribution module, along with a description of the distribution
--- we desire.  We get back not just the random number, but also the
--- new state of the engine.
+-- At the program top level the `dist` module is constructed with
+-- three parameters: the real module f32 defining the output type, the
+-- integral module u32 for mathematical operations on the underlying
+-- random integers, and the RNG engine minstd_rand that generates the
+-- raw random values. While at the expression level we use the
+-- `minstd_rand` module for initialising the random number state using
+-- a seed, and then we pass that state to the `rand` function in the
+-- generated distribution module, along with a description of the
+-- distribution we desire.  We get back not just the random number,
+-- but also the new state of the engine.
 --
 -- ```
--- module dist = uniform_real_distribution f32 minstd_rand
+-- module dist = uniform_real_distribution f32 u32 minstd_rand
 --
 -- let rng = minstd_rand.rng_from_seed [123]
 -- let (rng, x) = dist.rand (1,6) rng
@@ -34,7 +37,7 @@
 -- standard deviation:
 --
 -- ```
--- module norm_dist = normal_distribution f32 minstd_rand
+-- module norm_dist = normal_distribution f32 u32 minstd_rand
 --
 -- let (rng, y) = norm_dist.rand {mean=50, stddev=25} rng
 -- ```
