@@ -462,38 +462,32 @@ module xorshift128plus : rng_engine with t = u64 = {
 module pcg32 : rng_engine with t = u32 = {
   type t = u32
   module int = u32
-  type rng = {state: u64, inc: u64}
+  type rng = u64
 
-  def rand ({state, inc}: rng) =
+  def rand (state: rng) =
     let oldstate = state
-    let state = oldstate * 6364136223846793005u64 + (inc | 1u64)
+    let state = oldstate * 6364136223846793005u64 + 13005396917011789751u64
     let xorshifted = u32.u64 (((oldstate >> 18u64) ^ oldstate) >> 27u64)
     let rot = u32.u64 (oldstate >> 59u64)
-    in ( {state, inc}
-       , (xorshifted >> rot) | (xorshifted << ((-rot) & 31u32))
-       )
+    in (state, (xorshifted >> rot) | (xorshifted << ((-rot) & 31u32)))
 
   def rng_from_seed (xs: []i32) =
-    let initseq = 0xda3e39cb94b95bdbu64
     -- Should expose this somehow.
     let state = 0u64
-    let inc = (initseq << 1u64) | 1u64
-    let {state, inc} = (rand {state, inc}).0
+    let state = (rand state).0
     let state = loop state for x in xs do state + u64.i32 x
-    in (rand {state, inc}).0
+    in (rand state).0
 
-  def split_rng (n: i64) ({state, inc}: rng) : [n]rng =
+  def split_rng (n: i64) (state: rng) : [n]rng =
     let ith i =
       let i' = hash (i32.i64 (i ^ n))
-      in {state = state ^ u64.i32 i' ^ (u64.i32 i' << 32), inc}
+      in state ^ u64.i32 i' ^ (u64.i32 i' << 32)
     in tabulate n ith
 
   def join_rng (rngs: []rng) =
-    let states = map (\(x: rng) -> x.state) rngs
-    let incs = map (\(x: rng) -> x.inc) rngs
+    let states = map (\(state: rng) -> state) rngs
     let state = reduce (*) 1u64 states
-    let inc = reduce (|) 0u64 incs
-    in {state, inc}
+    in state
 
   def min = 0u32
   def max = 0xFFFFFFFFu32
