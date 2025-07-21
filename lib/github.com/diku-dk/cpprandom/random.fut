@@ -457,7 +457,7 @@ module xorshift128plus : rng_engine with t = u64 = {
   def max = u64.highest
 }
 
--- | [PCG32](http://www.pcg-random.org/).  Has a state space of 128
+-- | [PCG32](http://www.pcg-random.org/).  Has a state space of 64
 -- bits, and produces uniformly distributed 32-bit integers.
 module pcg32 : rng_engine with t = u32 = {
   type t = u32
