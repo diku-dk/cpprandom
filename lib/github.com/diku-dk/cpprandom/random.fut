@@ -516,9 +516,9 @@ module uniform_int_distribution (D: integral) (E: rng_engine)
   open E.int
 
   def rand ((D_min, D_max): distribution) (rng: E.rng) =
-    let min = to_E D_min
-    let max = to_E D_max
-    let range = max - min + i32 1
+    let range = to_E (D_max D.- D_min D.+ D.i32 1)
+    -- If the range is 0 then we assume arithmetic overflow.
+    let range = if range == i32 0 then E.max E.int.- E.min else range
     in if range <= i32 0
        then (rng, to_D E.min)
        else -- Avoid infinite loop if range exceeds what the RNG
