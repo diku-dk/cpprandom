@@ -10,7 +10,7 @@ module type gen = {
   type rng
 
   -- | Generate a random value from a generator.
-  val generate 't : rng -> gen t -> (rng, t)
+  val generate 't : rng -> gen t -> (rng, *t)
 
   -- | Apply function to result of generator.
   val fmap 'a 'b : (a -> b) -> gen a -> gen b
@@ -42,7 +42,7 @@ module mk_gen (E: rng_engine) : gen with rng = E.rng = {
   type rng = E.rng
   type^ gen 't = E.rng -> (E.rng, t)
 
-  def generate rng gen = gen rng
+  def generate rng gen = copy (gen rng)
 
   def fmap f gen rng =
     let (rng, x) = gen rng
